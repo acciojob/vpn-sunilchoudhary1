@@ -23,50 +23,63 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(String username, String password, String countryName) throws Exception{
-        User user=new User();
-        Country country=new Country();
-        user.setUsername(username);
-        user.setPassword(password);
-        if(countryName.equalsIgnoreCase("IND")){
-            country.setCountryName(CountryName.IND);
-            country.setCode(CountryName.IND.toCode());
+        //create a user of given country. The ip of the user should be "countryCode.userId" and return the user.
+        //Note that the userId is created automatically by the repository layer
+
+        if(countryName.equalsIgnoreCase("ind") || countryName.equalsIgnoreCase("usa") || countryName.equalsIgnoreCase("aus")||countryName.equalsIgnoreCase("jpn")||countryName.equalsIgnoreCase("chi")) {
+
+            User user = new User();
+            user.setPassword(password);
+            user.setUsername(username);
+
+            Country country = new Country();
+
+            if (countryName.equalsIgnoreCase("ind")) {
+                country.setCountryName(CountryName.IND);
+                country.setCode(CountryName.IND.toCode());
+            }
+            if (countryName.equalsIgnoreCase("usa")) {
+                country.setCountryName(CountryName.USA);
+                country.setCode(CountryName.USA.toCode());
+            }
+            if (countryName.equalsIgnoreCase("aus")) {
+                country.setCountryName(CountryName.AUS);
+                country.setCode(CountryName.AUS.toCode());
+            }
+            if (countryName.equalsIgnoreCase("jpn")) {
+                country.setCountryName(CountryName.JPN);
+                country.setCode(CountryName.JPN.toCode());
+            }
+            if (countryName.equalsIgnoreCase("chi")) {
+                country.setCountryName(CountryName.CHI);
+                country.setCode(CountryName.CHI.toCode());
+            }
+
+            country.setUser(user);
+            user.setOriginalCountry(country);
+            user.setConnected(false);
+
+            String IP = country.getCode() +"."+ userRepository3.save(user).getId();
+            user.setOriginalIp(IP);
+
+            userRepository3.save(user);
+            return user;
         }
-        else if(countryName.equalsIgnoreCase("USA")){
-            country.setCountryName(CountryName.USA);
-            country.setCode(CountryName.USA.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("AUS")){
-            country.setCountryName(CountryName.AUS);
-            country.setCode(CountryName.AUS.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("CHI")){
-            country.setCountryName(CountryName.CHI);
-            country.setCode(CountryName.CHI.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("JPN")){
-            country.setCountryName(CountryName.JPN);
-            country.setCode(CountryName.JPN.toCode());
-        }
-        else throw new Exception("Country not found");
-        country.setServiceProvider(null);
-        country.setUser(user);
-        user.setOriginalCountry(country);
-        user.setConnected(false);
-        user.setOriginalIp(country.getCode()+"."+user.getId());
-        user.setMaskedIp(null);
-        userRepository3.save(user);
-        return user;
+        else
+            throw new Exception("Country not found");
 
 
     }
 
     @Override
     public User subscribe(Integer userId, Integer serviceProviderId) {
-        User user=userRepository3.findById(userId).get();
-        ServiceProvider serviceProvider=serviceProviderRepository3.findById(serviceProviderId).get();
+        User user = userRepository3.findById(userId).get();
+        ServiceProvider serviceProvider = serviceProviderRepository3.findById(serviceProviderId).get();
+
         user.getServiceProviderList().add(serviceProvider);
         serviceProvider.getUsers().add(user);
-        userRepository3.save(user);
+
+        serviceProviderRepository3.save(serviceProvider);
         return user;
     }
 }
