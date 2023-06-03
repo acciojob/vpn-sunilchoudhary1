@@ -8,7 +8,7 @@ public interface AdminService  {
 
     Admin register(String username, String password);
 
-    Admin addServiceProvider(int adminId, String providerName) throws Exception;
+    Admin addServiceProvider(int adminId, String providerName);
 
     ServiceProvider addCountry(int serviceProviderId, String countryName) throws Exception;
 }
